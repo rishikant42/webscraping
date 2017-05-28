@@ -7,11 +7,15 @@
    
         {% if data %}           
             <p>Found {{ data|length }} records.</p>
-            <ul>               
-                {% for k, v in data.items %}               
-                <li>AppName: {{ k }}, AppID: {{ v }}</li>               
+            <ol>               
+                {% for key, values in data.items %}               
+                  <li>AppName: {{ key }}</li>
+                    {% for i in values %}
+                      <p> {{ i }} </p>
+                    {% endfor %}               
+                  <br>
                 {% endfor %}           
-            </ul>       
+            </ol>       
         {% else %}           
             <p>No data matched your search criteria.</p>       
         {% endif %}     

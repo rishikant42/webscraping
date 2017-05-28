@@ -32,11 +32,13 @@ def search(request):
             if links_text[i] == '  Pre-ordered    ':
                 appName.append(links_text[i+2])
                 href.append(links[i+2].get("href"))
-
+                
         appID = [i.split("id=")[1] for i in href]
 
+        websites = ["https://play.google.com"+i for i in href][0:10]
+
         for i in range(10):
-            data[appName[i]] = appID[i]
+            data[appName[i]] = ["AppID: " + appID[i], "Website: " + websites[i]]
 
         new_query = Query(query=q,results=data)
         new_query.save()

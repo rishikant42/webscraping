@@ -1,0 +1,19 @@
+<html>     
+    <head>         
+    <title>Search Result</title>     
+    </head>     
+    <body>       
+        <p>You searched for: <strong>{{ query }}</strong></p>
+   
+        {% if data %}           
+            <p>Found {{ data|length }} records.</p>
+            <ul>               
+                {% for k, v in data.items %}               
+                <li>AppName: {{ k }}, AppID: {{ v }}</li>               
+                {% endfor %}           
+            </ul>       
+        {% else %}           
+            <p>No data matched your search criteria.</p>       
+        {% endif %}     
+    </body>
+</html>

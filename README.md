@@ -16,6 +16,8 @@ $ pip install -r requirements.txt
 Database configurations:
 
 ```
+$ python manage.py makemigrations webscrapingapp
+$ python manage.py sqlmigrate webscrapingapp 0001
 $ python manage.py migrate
 ```
 

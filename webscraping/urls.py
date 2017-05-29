@@ -16,10 +16,11 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from webscrapingapp.views import search_form, search
+from webscrapingapp.views import search_form, search, description
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', search_form),
     url(r'^search/$', search),
+    url(r'^description/$', description),
 ]

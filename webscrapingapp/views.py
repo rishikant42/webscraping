@@ -106,7 +106,7 @@ def description(request):
 
     else:
         r = requests.get(url)
-        soup = BeautifulSoup(r.content)
+        soup = BeautifulSoup(r.content, "html.parser")
         data = soup.find_all("div", {"class":"show-more-content text-body"})
 
         new_url_des = Description(url=url, description=data)

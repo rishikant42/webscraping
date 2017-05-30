@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-from webscrapingapp.models import Query
+from webscrapingapp.models import Query, Description
 import requests
 import ast
 
@@ -76,7 +76,19 @@ def search(request):
 
 def description(request):
     url = request.GET['url']
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content)
-    data = soup.find_all("div", {"class":"show-more-content text-body"})
+
+    urls = Description.objects.values_list('url', flat=True)
+
+    if url in urls:
+        query = Description.objects.get(url=url)
+        data = query.description
+
+    else:
+        r = requests.get(url)
+        soup = BeautifulSoup(r.content)
+        data = soup.find_all("div", {"class":"show-more-content text-body"})
+
+        new_url_des = Description(url=url, description=data)
+        new_url_des.save()
+
     return HttpResponse(data)

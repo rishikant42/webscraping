@@ -9,3 +9,10 @@ class Query(models.Model):
 
     def __str__(self):
         return self.query
+
+class Description(models.Model):
+    url = models.CharField(max_length=1000)
+    description = models.CharField(max_length=10000)
+
+    def __str__(self):
+        return self.url

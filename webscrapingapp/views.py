@@ -6,10 +6,23 @@ from webscrapingapp.models import Query, Description
 import requests
 import ast
 
-from time import time
-
 def search_form(request):
     return render(request, 'search_form.html')
+
+def app_name_href_scrap(url):
+    appName = []
+    href = []
+
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, "html.parser")
+    links = soup.find_all("a", {"class":"title"})
+    links = links[0:10]
+
+    for link in links:
+        href.append(link.attrs.get("href"))
+        appName.append(link.attrs.get("title"))
+
+    return(appName, href)
 
 def icon_url_scrap(soup):
     icon_data =  soup.find_all("img", {"class":"cover-image", "alt":"Cover art"})
@@ -33,32 +46,12 @@ def email_icon_scrap(urls):
     for url in urls:
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
-
         emails.append(email_scrap(soup))
-
         icon_urls.append(icon_url_scrap(soup))
 
     return(emails, icon_urls)
 
-
-def app_name_href_scrap(url):
-    appName = []
-    href = []
-
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, "html.parser")
-    links = soup.find_all("a", {"class":"title"})
-    links = links[0:10]
-
-    for link in links:
-        href.append(link.attrs.get("href"))
-        appName.append(link.attrs.get("title"))
-
-    return(appName, href)
-
-
 def search(request):
-    t = time()
     q = request.GET['q']
     queries = Query.objects.values_list('query', flat=True)
 
@@ -95,7 +88,6 @@ def search(request):
         if Query.objects.filter(query=q).count() > 1:
             row.delete()
 
-    print("Time: ", time() - t)
     return render(request, 'search_results.html', {'data':data, 'query':q, 'websites': weburl})
 
 def description(request):

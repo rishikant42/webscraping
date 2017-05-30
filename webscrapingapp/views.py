@@ -10,24 +10,19 @@ def search_form(request):
     return render(request, 'search_form.html')
 
 def email_scrap(websites):
-    mailto = []
+    emails = []
     for url in websites:
         r = requests.get(url)
         soup = BeautifulSoup(r.content)
         mail_link = soup.find_all("a", {"class":"dev-link"}) 
 
         if not mail_link:
-            mailto.append('')
+            emails.append('')
         else:
             for link in mail_link:
-                if "mailto" in link.attrs.get("href"):
-                    mailto.append(link.attrs.get("href"))
-    emails = []
-    for i in mailto:
-        if i != '':
-            emails.append(i.replace("mailto:", "Email: "))
-        else:
-            emails.append('')
+                if "Email" in link.text:
+                    emails.append(link.text)
+
     return emails
 
 def app_name_href_scrap(links):

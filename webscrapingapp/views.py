@@ -87,6 +87,10 @@ def search(request):
         new_query = Query(query=q,results=data,weburl=weburl)
         new_query.save()
 
+    for row in Query.objects.filter(query=q):
+        if Query.objects.filter(query=q).count() > 1:
+            row.delete()
+
     return render(request, 'search_results.html', {'data':data, 'query':q, 'websites': weburl})
 
 def description(request):
@@ -105,5 +109,9 @@ def description(request):
 
         new_url_des = Description(url=url, description=data)
         new_url_des.save()
+
+    for row in Description.objects.filter(url=url):
+        if Description.objects.filter(url=url).count() > 1:
+            row.delete()
 
     return HttpResponse(data)

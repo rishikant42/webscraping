@@ -6,38 +6,40 @@ from webscrapingapp.models import Query, Description
 import requests
 import ast
 
+from time import time
+
 def search_form(request):
     return render(request, 'search_form.html')
 
-def icon_url_scrap(websites):
-    icon_src = []
-    for url in websites:
-        r = requests.get(url)
-        soup = BeautifulSoup(r.content, "html.parser")
-        icon_data =  soup.find_all("img", {"class":"cover-image", "alt":"Cover art"})
-        icon_data = icon_data[0]
-        icon_src.append(icon_data.get("src"))
+def icon_url_scrap(soup):
+    icon_data =  soup.find_all("img", {"class":"cover-image", "alt":"Cover art"})
+    icon_data = icon_data[0]
+    return("https:" + icon_data.get("src"))
 
-    icon_url = ["https:"+src for src in icon_src]
+def email_scrap(soup):
+    mail_link = soup.find_all("a", {"class":"dev-link"}) 
 
-    return icon_url
+    if not mail_link:
+        return ''
+    else:
+        for link in mail_link:
+            if "Email" in link.text:
+                return(link.text)
 
-
-def email_scrap(websites):
+def email_icon_scrap(urls):
     emails = []
-    for url in websites:
+    icon_urls = []
+
+    for url in urls:
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
-        mail_link = soup.find_all("a", {"class":"dev-link"}) 
 
-        if not mail_link:
-            emails.append('')
-        else:
-            for link in mail_link:
-                if "Email" in link.text:
-                    emails.append(link.text)
+        emails.append(email_scrap(soup))
 
-    return emails
+        icon_urls.append(icon_url_scrap(soup))
+
+    return(emails, icon_urls)
+
 
 def app_name_href_scrap(url):
     appName = []
@@ -56,6 +58,7 @@ def app_name_href_scrap(url):
 
 
 def search(request):
+    t = time()
     q = request.GET['q']
     queries = Query.objects.values_list('query', flat=True)
 
@@ -74,9 +77,8 @@ def search(request):
 
         websites = ["https://play.google.com"+i for i in href][0:10]
 
-        emails = email_scrap(websites)
+        emails, icon_urls = email_icon_scrap(websites)
 
-        icon_urls = icon_url_scrap(websites)
 
         for i in range(10):
             data[appName[i]] = ["AppID: " + appID[i], "Website: " + websites[i], "Icon url: " + icon_urls[i], emails[i]]
@@ -93,6 +95,7 @@ def search(request):
         if Query.objects.filter(query=q).count() > 1:
             row.delete()
 
+    print("Time: ", time() - t)
     return render(request, 'search_results.html', {'data':data, 'query':q, 'websites': weburl})
 
 def description(request):

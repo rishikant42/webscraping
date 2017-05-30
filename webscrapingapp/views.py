@@ -13,7 +13,7 @@ def icon_url_scrap(websites):
     icon_src = []
     for url in websites:
         r = requests.get(url)
-        soup = BeautifulSoup(r.content)
+        soup = BeautifulSoup(r.content, "html.parser")
         icon_data =  soup.find_all("img", {"class":"cover-image", "alt":"Cover art"})
         icon_data = icon_data[0]
         icon_src.append(icon_data.get("src"))
@@ -27,7 +27,7 @@ def email_scrap(websites):
     emails = []
     for url in websites:
         r = requests.get(url)
-        soup = BeautifulSoup(r.content)
+        soup = BeautifulSoup(r.content, "html.parser")
         mail_link = soup.find_all("a", {"class":"dev-link"}) 
 
         if not mail_link:
@@ -39,12 +39,19 @@ def email_scrap(websites):
 
     return emails
 
-def app_name_href_scrap(links):
+def app_name_href_scrap(url):
     appName = []
     href = []
+
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, "html.parser")
+    links = soup.find_all("a", {"class":"title"})
+    links = links[0:10]
+
     for link in links:
         href.append(link.attrs.get("href"))
         appName.append(link.attrs.get("title"))
+
     return(appName, href)
 
 
@@ -60,13 +67,8 @@ def search(request):
         data = {}
 
         url = "https://play.google.com/store/search?q=%s" % q
-        r = requests.get(url)
-        soup = BeautifulSoup(r.content)
-        links = soup.find_all("a", {"class":"title"})
 
-        links = links[0:10]
-
-        appName, href = app_name_href_scrap(links)
+        appName, href = app_name_href_scrap(url)
 
         appID = [i.split("id=")[1] for i in href]
 

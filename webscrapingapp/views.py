@@ -9,6 +9,20 @@ import ast
 def search_form(request):
     return render(request, 'search_form.html')
 
+def icon_url_scrap(websites):
+    icon_src = []
+    for url in websites:
+        r = requests.get(url)
+        soup = BeautifulSoup(r.content)
+        icon_data =  soup.find_all("img", {"class":"cover-image", "alt":"Cover art"})
+        icon_data = icon_data[0]
+        icon_src.append(icon_data.get("src"))
+
+    icon_url = ["https:"+src for src in icon_src]
+
+    return icon_url
+
+
 def email_scrap(websites):
     emails = []
     for url in websites:
@@ -49,7 +63,6 @@ def search(request):
         r = requests.get(url)
         soup = BeautifulSoup(r.content)
         links = soup.find_all("a", {"class":"title"})
-        #links_text = [link.text for link in links]
 
         links = links[0:10]
 
@@ -61,8 +74,10 @@ def search(request):
 
         emails = email_scrap(websites)
 
+        icon_urls = icon_url_scrap(websites)
+
         for i in range(10):
-            data[appName[i]] = ["AppID: " + appID[i], "Website: " + websites[i], emails[i]]
+            data[appName[i]] = ["AppID: " + appID[i], "Website: " + websites[i], "Icon url: " + icon_urls[i], emails[i]]
 
 
         weburl = {}
